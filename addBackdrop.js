@@ -1,28 +1,37 @@
 (function ( $ ) {
 
-	//var $ = require( 'jquery' );
+	// var $ = require( 'jquery' );
 
 	$.fn.addBackdrop = function ( options ) {
-		var exempted  = options.exempted;
-		var backdrop  = '<div id="backdrop-compact"></div>';
-		var clickFunc = options.bdFunc || function () {
+		var exempted    = options.exclude;
+		var backdrop    = '<div id="backdrop-aplugin"></div>';
+		var elementFunc = options.onSelfClick || function () {};
+		var bdFunc      = options.onBackdropClick || function () {
 			this.remove();
-		}
+		};
 
 		for ( var i = 0; i < exempted.length; i++ ) {
-			$( exempted[i] ).css( 'z-index', options.zindex1 );
+				$( exempted[i] ).css( 'z-index', options.zindex1 + 1 );
 		}
 
-		if ( $( '#backdrop-compact' ).is( ':visible' ) ) {
-			$( '#backdrop-compact' ).off();
-			$( '#backdrop-compact' ).remove();
+		function removeBind () {
+			if ( $( '#backdrop-aplugin' ).is( ':visible' ) ) {
+				$( '#backdrop-aplugin' ).off();
+				$( '#backdrop-aplugin' ).remove();
+			}
 		}
 
-		$( 'body' ).append( backdrop );
+		function bindAgain () {
+			$( '#backdrop-aplugin' ).css( 'z-index', options.zindex2  )
+									.on( 'click', bdFunc );
+		}
 
-		$( 'backdrop-compact' ).css( 'z-index', options.zindex2  );
-
-		$( 'backdrop-compact' ).on( 'click', clickFunc );
+		this.on( 'click', function ( e ) {
+			elementFunc( e );
+			removeBind();
+			$( 'body' ).append( backdrop );
+			bindAgain();
+		} );
 
 		return this.css( 'z-index', options.zindex1 );
 	};
